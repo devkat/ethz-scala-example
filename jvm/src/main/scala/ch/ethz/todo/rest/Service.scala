@@ -6,9 +6,9 @@ object Service {
 
   def tasks =
     List(
-      Task("Apples"),
-      Task("Milk"),
-      Task("Butter")
+      Task("Apples", false),
+      Task("Milk", false),
+      Task("Butter", true)
     )
 
 }

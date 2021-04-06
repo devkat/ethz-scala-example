@@ -2,11 +2,16 @@ val http4sVersion = "1.0.0-M19"
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
-ThisBuild / organization := "ch.ethz"
-
-ThisBuild / version := "0.1.0-SNAPSHOT"
-
-ThisBuild / scalaVersion := "2.13.5"
+inThisBuild(
+   List(
+     scalaVersion := "2.13.5",
+     version := "0.1.0-SNAPSHOT",
+     organization := "ch.ethz",
+     scalacOptions ++= Seq("-Ywarn-unused"),
+     semanticdbEnabled := true,
+     semanticdbVersion := scalafixSemanticdb.revision
+   )
+)
 
 lazy val root = (project in file("."))
   .settings(

@@ -9,8 +9,7 @@ import org.http4s.implicits.http4sKleisliResponseSyntaxOptionT
 import org.http4s.server.blaze.BlazeServerBuilder
 import org.http4s.scalatags._
 import org.http4s.circe.CirceEntityEncoder._
-import org.http4s.server.staticcontent._
-import org.http4s.syntax.kleisli._
+import org.http4s.server.staticcontent._
 import io.circe.generic.auto._
 
 import scala.concurrent.ExecutionContext.global

@@ -1,21 +1,17 @@
 package ch.ethz.todo
 
-import org.scalajs.dom
-import ch.ethz.todo.components.TodoList
-import com.raquo.airstream.core.Signal
 import scala.collection.immutable.Seq
+
+import ch.ethz.todo.components.TodoList
 import ch.ethz.todo.domain.Task
+import com.raquo.airstream.core.EventStream
 import com.raquo.airstream.web.AjaxEventStream
-import io.circe._
+import com.raquo.laminar.api.L._
 import io.circe.generic.auto._
-import io.circe.syntax._
-import io.circe.parser._
-import com.raquo.airstream.core.EventStream
-import com.raquo.laminar.api.L._
+import io.circe.parser._
+import org.scalajs.dom
 
 object Main {
-
-  implicit val decoder: Decoder[Task] = Task.decoder
 
   val taskStream: EventStream[Either[ErrorMessage, Seq[Task]]] =
     AjaxEventStream
@@ -27,6 +23,7 @@ object Main {
   def init = {
     val appContainer: dom.Element = dom.document.getElementById("app")
     val appElement = div(
+      className := "content",
       child <-- taskStream.map(_.fold(div("Error: ", _), _ => div())),
       TodoList(taskStream.map(_.getOrElse(Seq.empty)))
     )

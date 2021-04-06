@@ -1,18 +1,24 @@
 package ch.ethz.todo.components
 
-import ch.ethz.todo.domain._
-
-import com.raquo.laminar.api.L._
 import scala.collection.immutable.Seq
+
+import ch.ethz.todo.components.bootstrap.Checkbox
+import ch.ethz.todo.components.bootstrap.ListGroup
+import ch.ethz.todo.components.bootstrap.ListGroupItem
+import ch.ethz.todo.domain._
+import com.raquo.laminar.api.L._
 
 object TodoList {
 
-  def apply(tasks: EventStream[Seq[Task]]) =
-  div(
-    className := "content",
-    ol(
-      children <-- tasks.map(_.map(_.label).map(li(_)))
+  def apply(tasksStream: EventStream[Seq[Task]]) =
+    ListGroup(
+      children <-- tasksStream.map(
+        _.map(task =>
+          ListGroupItem(
+            Checkbox(task.label)
+          )
+        )
+      )
     )
-  )
 
 }
