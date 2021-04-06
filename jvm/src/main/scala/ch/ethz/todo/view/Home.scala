@@ -19,7 +19,6 @@ object Home {
     body(
       div(
         `class` := "container my-5",
-        h1(`class` := "title", "Tasks"),
         div(id := "app")
       )
     )

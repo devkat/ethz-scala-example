@@ -9,7 +9,8 @@ import org.http4s.implicits.http4sKleisliResponseSyntaxOptionT
 import org.http4s.server.blaze.BlazeServerBuilder
 import org.http4s.scalatags._
 import org.http4s.circe.CirceEntityEncoder._
-import org.http4s.server.staticcontent._
+import org.http4s.server.staticcontent._
+
 import io.circe.generic.auto._
 
 import scala.concurrent.ExecutionContext.global
@@ -17,23 +18,29 @@ import org.http4s.server.Router
 
 object Server extends IOApp {
 
-  val helloWorldService =
+  val helloWorldService: HttpRoutes[IO] =
     HttpRoutes.of[IO] {
-      case GET -> Root => Ok(Home.page)
+      case GET -> Root                   => Ok(Home.page)
       case GET -> Root / "api" / "tasks" => Ok(Service.tasks)
     }
 
-  val httpApp: HttpApp[IO] =
+  def httpApp(blocker: Blocker): HttpApp[IO] =
     Router(
-      "/scripts" -> fileService[IO](FileService.Config("../js/target/scala-2.13/todo-fastopt")),
+      "/scripts" -> fileService[IO](FileService.Config(
+        "../js/target/scala-2.13/todo-fastopt",
+        blocker
+      )),
       "/" -> helloWorldService
     ).orNotFound
 
   override def run(args: List[String]): IO[ExitCode] =
-    BlazeServerBuilder[IO](global)
-      .bindHttp(8080, "localhost")
-      .withHttpApp(httpApp)
-      .resource
+    Blocker[IO]
+      .flatMap(blocker =>
+        BlazeServerBuilder[IO](global)
+          .bindHttp(8080, "localhost")
+          .withHttpApp(httpApp(blocker))
+          .resource
+      )
       .use(server => IO(println(s"Started server at ${server.baseUri}")) *> IO.never)
       .as(ExitCode.Success)
 

@@ -4,11 +4,14 @@ import scala.collection.immutable.Seq
 
 import ch.ethz.todo.components.TodoList
 import ch.ethz.todo.domain.Task
-import com.raquo.airstream.core.EventStream
+import com.raquo.airstream.core.EventStream
+
 import com.raquo.airstream.web.AjaxEventStream
-import com.raquo.laminar.api.L._
+import com.raquo.laminar.api.L._
+
 import io.circe.generic.auto._
-import io.circe.parser._
+import io.circe.parser._
+
 import org.scalajs.dom
 
 object Main {
@@ -31,7 +34,7 @@ object Main {
   }
 
   def main(args: Array[String]): Unit = {
-    dom.document.addEventListener("DOMContentLoaded", (e: dom.Event) => init)
+    dom.document.addEventListener("DOMContentLoaded", (_: dom.Event) => init)
   }
 
 }
