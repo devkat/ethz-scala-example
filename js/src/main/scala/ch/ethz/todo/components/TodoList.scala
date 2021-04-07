@@ -1,7 +1,7 @@
 package ch.ethz.todo.components
 
 import cats.implicits._
-import ch.ethz.todo.ErrorMessage
+import ch.ethz.todo.TaskList
 import ch.ethz.bootstrap.Checkbox
 import ch.ethz.bootstrap.ListGroup
 import ch.ethz.bootstrap.ListGroupItem
@@ -11,10 +11,11 @@ import ch.ethz.bootstrap.TextInput
 import org.scalajs.dom
 import ch.ethz.todo.Client
 import com.raquo.domtypes.jsdom.defs.events.TypedTargetEvent
+import org.scalajs.dom.raw.Event
 
 object TodoList {
 
-  def apply(tasksVar: Var[Either[ErrorMessage, List[(Int, Task)]]]) = {
+  def apply(tasksVar: Var[TaskList]) = {
 
     val taskList = tasksVar.signal.map(_.getOrElse(Nil))
 
@@ -42,12 +43,16 @@ object TodoList {
         )
       )
 
-      /*
-    val newTaskBus: EventBus[String] =
-      new EventBus
-       .flatMap(label => Client.insertTask(Task(label, false)))
+    val labelBus: EventBus[String] = new EventBus
+    val labelSignal: Signal[String] = labelBus.events.startWith("")
+    
+    val newTaskBus: EventBus[Event] = new EventBus
+    val newTaskStream: EventStream[TaskList] =
+      newTaskBus.events
+        .sample(labelSignal)
+        .filter(_.trim.nonEmpty)
+        .flatMap(label => Client.insertTask(Task(label, false)))
         .flatMap(_ => Client.tasks)
-        */
 
     List(
       h1("Tasks"),
@@ -60,23 +65,15 @@ object TodoList {
             TextInput(
               placeholder := "New task",
               autoFocus(true),
-              inContext { thisNode =>
-                val response = thisNode
-                  .events(onEnterPress)
-                  .mapTo(thisNode.ref.value)
-                  .filter(_.nonEmpty)
-                  .flatMap(label => Client.insertTask(Task(label, false)))
-                  .flatMap(_ => Client.tasks)
-                response --> { r =>
-                  thisNode.ref.value = ""
-                  tasksVar.set(r)
-                }
-              }
+              value <-- newTaskStream.mapTo(""),
+              onInput.mapToValue --> labelBus.writer,
+              onEnterPress --> newTaskBus.writer,
+              newTaskStream --> tasksVar.writer
             ),
             button(
               cls := "btn btn-outline-secondary",
               `type` := "button",
-              onClick --> Observer[dom.MouseEvent](onNext = ev => dom.console.log(ev.screenX)),
+              onClick --> newTaskBus.writer,
               "Add"
             )
           )
