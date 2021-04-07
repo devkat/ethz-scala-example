@@ -1,5 +1,4 @@
 package ch.ethz.todo
-
 
 package object domain {
 

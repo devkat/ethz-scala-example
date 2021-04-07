@@ -52,7 +52,7 @@ object Database {
       Task("Milk", false),
       Task("Butter", true)
     )
-    val sql = "insert into task('label', 'completed') values(?, ?)"
+    val sql = "insert into task(label, completed) values(?, ?)"
     Update[Task](sql).updateMany(tasks)
   }
 

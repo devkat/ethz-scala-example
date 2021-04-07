@@ -18,7 +18,7 @@ object Home {
     ),
     body(
       div(
-        `class` := "container my-5",
+        `class` := "container-sm my-5",
         div(id := "app")
       )
     )

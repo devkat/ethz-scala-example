@@ -1,4 +1,4 @@
-package ch.ethz.todo.components.bootstrap
+package ch.ethz.bootstrap
 
 import com.raquo.laminar.api.L._
 import org.scalajs.dom.html.LI

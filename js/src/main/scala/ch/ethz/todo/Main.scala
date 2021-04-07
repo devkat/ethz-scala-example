@@ -1,40 +1,43 @@
 package ch.ethz.todo
 
-import scala.collection.immutable.Seq
-
+//import ch.ethz.todo.Command
+//import ch.ethz.todo.Command._
 import ch.ethz.todo.components.TodoList
 import ch.ethz.todo.domain.Task
-import com.raquo.airstream.core.EventStream
-
-import com.raquo.airstream.web.AjaxEventStream
 import com.raquo.laminar.api.L._
-
-import io.circe.generic.auto._
-import io.circe.parser._
 
 import org.scalajs.dom
 
 object Main {
 
-  val taskStream: EventStream[Either[ErrorMessage, Seq[Task]]] =
-    AjaxEventStream
-      .get("/api/tasks")
-      .map(_.responseText)
-      .map(decode[Seq[Task]])
-      .map(_.left.map[String](_.getMessage()))
+  private val tasksVar: Var[Either[String, List[(Int, Task)]]] = Var(Right(Nil))
 
-  def init = {
+  /*
+  private val commandObserver = Observer[Command] {
+    case Create(label) =>
+      //Client.insertTask(Task(label, false))
+      //tasksVar.update(_ :+ Task(id = lastId, text = itemText, completed = false))
+    case UpdateCompleted(id, completed) =>
+      //Client.updateTask(id, Task("foo", completed))
+      tasksVar.update(_.map(item =>
+        if (item.id == itemId) item.copy(completed = completed) else item
+      ))
+  }
+*/
+  private def init = {
     val appContainer: dom.Element = dom.document.getElementById("app")
     val appElement = div(
       className := "content",
-      child <-- taskStream.map(_.fold(div("Error: ", _), _ => div())),
-      TodoList(taskStream.map(_.getOrElse(Seq.empty)))
+      child <-- tasksVar.signal.map(_.fold(div("Error: ", _), _ => div())),
+      TodoList(tasksVar)
+      //TodoList(/*commandObserver, */Client.tasks.map(_.getOrElse(Seq.empty)))
     )
+    Client.tasks.foreach(tasksVar.set)(unsafeWindowOwner)
     render(appContainer, appElement)
   }
 
   def main(args: Array[String]): Unit = {
-    dom.document.addEventListener("DOMContentLoaded", (_: dom.Event) => init)
+    documentEvents.onDomContentLoaded.foreach(_ => init)(unsafeWindowOwner)
   }
 
 }
