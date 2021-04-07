@@ -1,8 +1,7 @@
 package ch.ethz.todo.components
 
+import cats.implicits._
 import ch.ethz.todo.ErrorMessage
-//import ch.ethz.todo.Command
-//import ch.ethz.todo.Command._
 import ch.ethz.bootstrap.Checkbox
 import ch.ethz.bootstrap.ListGroup
 import ch.ethz.bootstrap.ListGroupItem
@@ -11,6 +10,7 @@ import com.raquo.laminar.api.L._
 import ch.ethz.bootstrap.TextInput
 import org.scalajs.dom
 import ch.ethz.todo.Client
+import com.raquo.domtypes.jsdom.defs.events.TypedTargetEvent
 
 object TodoList {
 
@@ -18,64 +18,81 @@ object TodoList {
 
     val taskList = tasksVar.signal.map(_.getOrElse(Nil))
 
-    List(
-      h1("Tasks"),
-      div(
-        className := "input-group my-3",
-        TextInput(
-          placeholder := "New task",
-          autoFocus(true),
-          inContext { thisNode =>
-            val response = thisNode
-              .events(onEnterPress)
-              .mapTo(thisNode.ref.value)
-              .filter(_.nonEmpty)
-              .flatMap(label => Client.insertTask(Task(label, false)))
-              .flatMap(_ => Client.tasks)
-            response --> { r =>
-              thisNode.ref.value = ""
-              tasksVar.set(r)
-            }
-          }
-        )
-        /*
-        button(
-          className := "btn btn-outline-secondary",
-          `type` := "button",
-          onClick --> Observer[dom.MouseEvent](onNext = ev => dom.console.log(ev.screenX)),
-          "Add"
-        )
-         */
-      ),
+    def tasksView(completed: Boolean) =
       ListGroup(
         children <-- taskList.map(
           _
-            .filterNot(_._2.completed)
+            .filter(_._2.completed === completed)
             .map { case (id, task) =>
               ListGroupItem(
                 Checkbox(
+                  checked := task.completed,
                   inContext { thisNode =>
-                    val response = thisNode
-                      .events(onChange)
-                      .flatMap(_ => Client.updateTask(id, task.copy(completed = true)))
-                      .flatMap(_ => Client.tasks)
+                    val response =
+                      updateTask(
+                        thisNode.events(onChange),
+                        id,
+                        task.copy(completed = !task.completed)
+                      )
                     response --> tasksVar.writer
                   }
                 )(task.label)
               )
             }
         )
+      )
+
+      /*
+    val newTaskBus: EventBus[String] =
+      new EventBus
+       .flatMap(label => Client.insertTask(Task(label, false)))
+        .flatMap(_ => Client.tasks)
+        */
+
+    List(
+      h1("Tasks"),
+      div(
+        cls := "row",
+        div(
+          cls := "col-sm-6",
+          div(
+            cls := "input-group my-3",
+            TextInput(
+              placeholder := "New task",
+              autoFocus(true),
+              inContext { thisNode =>
+                val response = thisNode
+                  .events(onEnterPress)
+                  .mapTo(thisNode.ref.value)
+                  .filter(_.nonEmpty)
+                  .flatMap(label => Client.insertTask(Task(label, false)))
+                  .flatMap(_ => Client.tasks)
+                response --> { r =>
+                  thisNode.ref.value = ""
+                  tasksVar.set(r)
+                }
+              }
+            ),
+            button(
+              cls := "btn btn-outline-secondary",
+              `type` := "button",
+              onClick --> Observer[dom.MouseEvent](onNext = ev => dom.console.log(ev.screenX)),
+              "Add"
+            )
+          )
+        )
       ),
-      h3(className := "mt-3", "Completed"),
-      ListGroup(
-        children <-- taskList.map(
-          _
-            .filter(_._2.completed)
-            .map { case (_, task) =>
-              ListGroupItem(
-                Checkbox(disabled := true, checked := true)(task.label)
-              )
-            }
+      div(
+        cls := "row",
+        div(
+          cls := "col-md-6",
+          h3(className := "mt-3", "Open"),
+          tasksView(false)
+        ),
+        div(
+          cls := "col-md-6",
+          h3(cls := "mt-3", "Completed"),
+          tasksView(true)
         )
       )
     )
@@ -83,5 +100,14 @@ object TodoList {
 
   private val onEnterPress =
     onKeyPress.filter(_.keyCode == dom.ext.KeyCode.Enter)
+
+  private def updateTask(
+      stream: EventStream[TypedTargetEvent[dom.Element]],
+      id: Int,
+      task: Task
+  ) =
+    stream
+      .flatMap(_ => Client.updateTask(id, task))
+      .flatMap(_ => Client.tasks)
 
 }

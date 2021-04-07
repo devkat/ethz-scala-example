@@ -24,11 +24,19 @@ object Server extends IOApp {
 
   def helloWorldService(service: Service[IO]): HttpRoutes[IO] =
     HttpRoutes.of[IO] {
-      case GET -> Root                          => Ok(Home.page)
-      case GET -> Root / "api" / "tasks"        => Ok(service.tasks)
-      case req @ POST -> Root / "api" / "tasks" => Created(req.as[Task].flatMap(service.insertTask))
+
+      case GET -> Root =>
+        Ok(Home.page)
+
+      case GET -> Root / "api" / "tasks" =>
+        service.tasks.flatMap(Ok(_))
+
+      case req @ POST -> Root / "api" / "tasks" =>
+        req.as[Task].flatMap(service.insertTask).flatMap(Ok(_))
+
       case req @ PUT -> Root / "api" / "tasks" / IntVar(id) =>
-        Ok(req.as[Task].flatMap(service.updateTask(id, _)))
+        req.as[Task].flatMap(service.updateTask(id, _)).flatMap(Ok(_))
+
     }
 
   def httpApp(blocker: Blocker, service: Service[IO]): HttpApp[IO] =

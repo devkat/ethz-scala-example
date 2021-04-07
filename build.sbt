@@ -40,7 +40,8 @@ lazy val todo = crossProject(JSPlatform, JVMPlatform).in(file("."))
       "org.http4s"    %% "http4s-circe"        % http4sVersion,
       "org.tpolecat"  %% "doobie-core"         % "0.12.1",
       "org.tpolecat"  %% "doobie-h2"           % "0.12.1",
-      "com.h2database" % "h2"                  % "1.4.197"
+      "com.h2database" % "h2"                  % "1.4.197",
+      "org.slf4j"      % "slf4j-simple"        % "1.7.30"
     )
   )
   .jsSettings(

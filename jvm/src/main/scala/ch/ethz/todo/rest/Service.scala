@@ -40,8 +40,9 @@ object Service {
 
       @Override
       def updateTask(id: Int, task: Task): IO[Task] =
-        sql"udpate task set label = ${task.label}, completed = ${task.completed} where id = $id"
+        sql"update task set label = ${task.label}, completed = ${task.completed} where id = $id"
           .update
+          .run
           .transact(xa)
           .as(task)
 
