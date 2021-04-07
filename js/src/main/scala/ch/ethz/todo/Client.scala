@@ -34,6 +34,11 @@ object Client {
       )
       .as[Task]
 
+  def deleteTask(id: Int): EventStream[Either[ErrorMessage, Unit]] =
+    AjaxEventStream
+      .delete(s"/api/tasks/$id")
+      .as[Unit]
+
   private implicit class EventStreamSyntax(val stream: AjaxEventStream) {
     def as[B: Decoder]: EventStream[Either[ErrorMessage, B]] = {
       return stream

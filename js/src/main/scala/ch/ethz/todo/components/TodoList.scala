@@ -19,6 +19,23 @@ object TodoList {
 
     val taskList = tasksVar.signal.map(_.getOrElse(Nil))
 
+    val labelBus: EventBus[String] = new EventBus
+    val labelSignal: Signal[String] = labelBus.events.startWith("")
+
+    val newTaskBus: EventBus[Event] = new EventBus
+    val newTaskStream: EventStream[TaskList] =
+      newTaskBus.events
+        .sample(labelSignal)
+        .filter(_.trim.nonEmpty)
+        .flatMap(label => Client.insertTask(Task(label, false)))
+        .flatMap(_ => Client.tasks)
+
+    val deleteTaskBus: EventBus[Int] = new EventBus
+    val deleteTaskStream: EventStream[TaskList] =
+      deleteTaskBus.events
+        .flatMap(id => Client.deleteTask(id))
+        .flatMap(_ => Client.tasks)
+
     def tasksView(completed: Boolean) =
       ListGroup(
         children <-- taskList.map(
@@ -26,6 +43,7 @@ object TodoList {
             .filter(_._2.completed === completed)
             .map { case (id, task) =>
               ListGroupItem(
+                cls := "d-flex justify-content-between align-items-center",
                 Checkbox(
                   checked := task.completed,
                   inContext { thisNode =>
@@ -37,22 +55,17 @@ object TodoList {
                       )
                     response --> tasksVar.writer
                   }
-                )(task.label)
+                )(task.label),
+                button(
+                  tpe := "button",
+                  cls := "btn-close",
+                  onClick.mapTo(id) --> deleteTaskBus.writer,
+                  deleteTaskStream --> tasksVar.writer
+                )
               )
             }
         )
       )
-
-    val labelBus: EventBus[String] = new EventBus
-    val labelSignal: Signal[String] = labelBus.events.startWith("")
-    
-    val newTaskBus: EventBus[Event] = new EventBus
-    val newTaskStream: EventStream[TaskList] =
-      newTaskBus.events
-        .sample(labelSignal)
-        .filter(_.trim.nonEmpty)
-        .flatMap(label => Client.insertTask(Task(label, false)))
-        .flatMap(_ => Client.tasks)
 
     List(
       h1("Tasks"),

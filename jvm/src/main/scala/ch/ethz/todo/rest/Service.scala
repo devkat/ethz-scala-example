@@ -14,6 +14,8 @@ trait Service[F[_]] {
 
   def updateTask(id: Int, task: Task): F[Task]
 
+  def deleteTask(id: Int): F[Unit]
+
 }
 
 object Service {
@@ -23,28 +25,32 @@ object Service {
   def ioInstance(xa: transactor.Transactor[IO]): Service[IO] =
     new Service[IO] {
 
-      @Override
-      def tasks: IO[List[(Int, Task)]] =
+      override def tasks: IO[List[(Int, Task)]] =
         sql"select id, label, completed from task order by id desc"
           .query[(Int, String, Boolean)]
           .map { case (id, label, completed) => (id, Task(label, completed)) }
           .to[List]
           .transact(xa)
 
-      @Override
-      def insertTask(task: Task): IO[Task] =
+      override def insertTask(task: Task): IO[Task] =
         Update[Task]("insert into task(label, completed) values (?, ?)")
           .updateMany(List(task))
           .transact(xa)
           .as(task)
 
-      @Override
-      def updateTask(id: Int, task: Task): IO[Task] =
+      override def updateTask(id: Int, task: Task): IO[Task] =
         sql"update task set label = ${task.label}, completed = ${task.completed} where id = $id"
           .update
           .run
           .transact(xa)
           .as(task)
+
+      override def deleteTask(id: Int): IO[Unit] =
+      sql"delete from task where id = $id"
+          .update
+          .run
+          .transact(xa)
+          .void
 
     }
 

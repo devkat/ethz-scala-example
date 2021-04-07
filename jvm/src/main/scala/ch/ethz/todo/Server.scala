@@ -37,6 +37,8 @@ object Server extends IOApp {
       case req @ PUT -> Root / "api" / "tasks" / IntVar(id) =>
         req.as[Task].flatMap(service.updateTask(id, _)).flatMap(Ok(_))
 
+      case DELETE -> Root / "api" / "tasks" / IntVar(id) =>
+        service.deleteTask(id).flatMap(Ok(_))
     }
 
   def httpApp(blocker: Blocker, service: Service[IO]): HttpApp[IO] =
