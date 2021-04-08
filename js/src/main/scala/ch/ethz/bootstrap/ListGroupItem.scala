@@ -1,8 +1,8 @@
 package ch.ethz.bootstrap
 
 import com.raquo.laminar.api.L._
-import org.scalajs.dom.html.LI
 import com.raquo.laminar.nodes.ReactiveHtmlElement
+import org.scalajs.dom.html.LI
 
 object ListGroupItem {
 

@@ -1,9 +1,9 @@
 package ch.ethz.todo.rest
 
+import cats.effect.IO
 import ch.ethz.todo.domain._
 import doobie.implicits._
 import doobie.util.transactor
-import cats.effect.IO
 import doobie.util.update.Update
 
 trait Service[F[_]] {

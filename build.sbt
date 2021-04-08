@@ -9,7 +9,8 @@ inThisBuild(
     organization := "ch.ethz",
     scalacOptions ++= Seq("-Ywarn-unused"),
     semanticdbEnabled := true,
-    semanticdbVersion := scalafixSemanticdb.revision
+    semanticdbVersion := scalafixSemanticdb.revision,
+    scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.5.0"
   )
 )
 

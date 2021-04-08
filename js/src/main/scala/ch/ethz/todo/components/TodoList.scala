@@ -1,16 +1,15 @@
 package ch.ethz.todo.components
 
 import cats.implicits._
-import ch.ethz.todo.TaskList
 import ch.ethz.bootstrap.Checkbox
 import ch.ethz.bootstrap.ListGroup
 import ch.ethz.bootstrap.ListGroupItem
+import ch.ethz.bootstrap.TextInput
+import ch.ethz.todo.Client
+import ch.ethz.todo.TaskList
 import ch.ethz.todo.domain._
 import com.raquo.laminar.api.L._
-import ch.ethz.bootstrap.TextInput
 import org.scalajs.dom
-import ch.ethz.todo.Client
-import com.raquo.domtypes.jsdom.defs.events.TypedTargetEvent
 import org.scalajs.dom.raw.Event
 
 object TodoList {
@@ -30,10 +29,16 @@ object TodoList {
         .flatMap(label => Client.insertTask(Task(label, false)))
         .flatMap(_ => Client.tasks)
 
+    val updateTaskBus: EventBus[(Int, Task)] = new EventBus
+    val updateTaskStream: EventStream[TaskList] =
+      updateTaskBus.events
+        .flatMap((Client.updateTask _).tupled)
+        .flatMap(_ => Client.tasks)
+
     val deleteTaskBus: EventBus[Int] = new EventBus
     val deleteTaskStream: EventStream[TaskList] =
       deleteTaskBus.events
-        .flatMap(id => Client.deleteTask(id))
+        .flatMap(Client.deleteTask)
         .flatMap(_ => Client.tasks)
 
     def tasksView(completed: Boolean) =
@@ -46,21 +51,12 @@ object TodoList {
                 cls := "d-flex justify-content-between align-items-center",
                 Checkbox(
                   checked := task.completed,
-                  inContext { thisNode =>
-                    val response =
-                      updateTask(
-                        thisNode.events(onChange),
-                        id,
-                        task.copy(completed = !task.completed)
-                      )
-                    response --> tasksVar.writer
-                  }
+                  onChange.mapTo((id, task.copy(completed = !task.completed))) --> updateTaskBus.writer
                 )(task.label),
                 button(
                   tpe := "button",
                   cls := "btn-close",
-                  onClick.mapTo(id) --> deleteTaskBus.writer,
-                  deleteTaskStream --> tasksVar.writer
+                  onClick.mapTo(id) --> deleteTaskBus.writer
                 )
               )
             }
@@ -80,8 +76,7 @@ object TodoList {
               autoFocus(true),
               value <-- newTaskStream.mapTo(""),
               onInput.mapToValue --> labelBus.writer,
-              onEnterPress --> newTaskBus.writer,
-              newTaskStream --> tasksVar.writer
+              onEnterPress --> newTaskBus.writer
             ),
             button(
               cls := "btn btn-outline-secondary",
@@ -104,20 +99,14 @@ object TodoList {
           h3(cls := "mt-3", "Completed"),
           tasksView(true)
         )
-      )
+      ),
+      newTaskStream --> tasksVar.writer,
+      updateTaskStream --> tasksVar.writer,
+      deleteTaskStream --> tasksVar.writer
     )
   }
 
   private val onEnterPress =
     onKeyPress.filter(_.keyCode == dom.ext.KeyCode.Enter)
-
-  private def updateTask(
-      stream: EventStream[TypedTargetEvent[dom.Element]],
-      id: Int,
-      task: Task
-  ) =
-    stream
-      .flatMap(_ => Client.updateTask(id, task))
-      .flatMap(_ => Client.tasks)
 
 }

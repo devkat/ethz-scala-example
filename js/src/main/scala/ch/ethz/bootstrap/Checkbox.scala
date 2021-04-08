@@ -2,7 +2,8 @@ package ch.ethz.bootstrap
 
 import com.raquo.laminar.api.L._
 import com.raquo.laminar.nodes.ReactiveHtmlElement
-import org.scalajs.dom.html.{Label, Input}
+import org.scalajs.dom.html.Input
+import org.scalajs.dom.html.Label
 
 object Checkbox {
 

@@ -1,13 +1,13 @@
 package ch.ethz.todo.db
 
-import cats.effect.IO
 import cats.effect.Blocker
+import cats.effect.IO
 import cats.effect.Resource
 import cats.implicits._
+import ch.ethz.todo.domain.Task
 import doobie.h2.H2Transactor
 import doobie.implicits._
 import doobie.util.transactor.Transactor
-import ch.ethz.todo.domain.Task
 import doobie.util.update.Update
 
 object Database {

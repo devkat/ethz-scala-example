@@ -3,10 +3,10 @@ package ch.ethz.todo
 import ch.ethz.todo.domain.Task
 import com.raquo.airstream.core.EventStream
 import com.raquo.airstream.web.AjaxEventStream
+import io.circe.Decoder
 import io.circe.generic.auto._
 import io.circe.parser._
 import io.circe.syntax._
-import io.circe.Decoder
 import org.scalajs.dom.ext.Ajax
 
 object Client {

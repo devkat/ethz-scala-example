@@ -5,7 +5,6 @@ package ch.ethz.todo
 import ch.ethz.todo.components.TodoList
 import ch.ethz.todo.domain.Task
 import com.raquo.laminar.api.L._
-
 import org.scalajs.dom
 
 object Main {

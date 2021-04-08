@@ -1,24 +1,23 @@
 package ch.ethz.todo
 
-import cats.implicits._
 import cats.effect._
-import ch.ethz.todo.rest.Service
-import ch.ethz.todo.view.Home
-import org.http4s._
-import org.http4s.implicits._
-import org.http4s.dsl.io._
-import org.http4s.server.blaze.BlazeServerBuilder
-import org.http4s.scalatags._
-import org.http4s.circe.CirceEntityDecoder._
-import org.http4s.circe.CirceEntityEncoder._
-import org.http4s.server.staticcontent._
-
-import io.circe.generic.auto._
-
-import scala.concurrent.ExecutionContext.global
-import org.http4s.server.Router
+import cats.implicits._
 import ch.ethz.todo.db.Database
 import ch.ethz.todo.domain.Task
+import ch.ethz.todo.rest.Service
+import ch.ethz.todo.view.Home
+import io.circe.generic.auto._
+import org.http4s._
+import org.http4s.circe.CirceEntityDecoder._
+import org.http4s.circe.CirceEntityEncoder._
+import org.http4s.dsl.io._
+import org.http4s.implicits._
+import org.http4s.scalatags._
+import org.http4s.server.Router
+import org.http4s.server.blaze.BlazeServerBuilder
+import org.http4s.server.staticcontent._
+
+import scala.concurrent.ExecutionContext.global
 
 object Server extends IOApp {
 
