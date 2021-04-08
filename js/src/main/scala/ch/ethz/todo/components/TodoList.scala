@@ -22,7 +22,7 @@ object TodoList {
     newTaskBus.events
       .sample(labelSignal)
       .filter(_.trim.nonEmpty)
-      .flatMap(label => Client.insertTask(Task(label, false)))
+      .flatMap(label => Client.insertTask(Task(label, None, false)))
       .flatMap(_ => Client.tasks)
 
   val updateTaskBus: EventBus[(Int, Task)] = new EventBus
@@ -48,11 +48,18 @@ object TodoList {
             .filter(_._2.completed === completed)
             .map { case (id, task) =>
               ListGroupItem(
-                cls := "d-flex justify-content-between align-items-center",
-                Checkbox(
+                cls := "d-flex align-items-center",
+                Checkbox(cls := "flex-grow-1")(
                   checked := task.completed,
                   onChange.mapTo((id, task.copy(completed = !task.completed))) --> updateTaskBus.writer
                 )(task.label),
+                /*
+                input(
+                  cls := "form-control",
+                  tpe := "datetime-local"
+                ),
+                //button(cls := "btn bi-calendar"),
+                */
                 button(
                   tpe := "button",
                   cls := "btn-close",

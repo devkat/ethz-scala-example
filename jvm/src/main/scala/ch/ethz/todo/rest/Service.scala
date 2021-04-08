@@ -3,8 +3,10 @@ package ch.ethz.todo.rest
 import cats.effect.IO
 import ch.ethz.todo.domain._
 import doobie.implicits._
+import doobie.implicits.javatime._
 import doobie.util.transactor
 import doobie.util.update.Update
+import java.time.Instant
 
 trait Service[F[_]] {
 
@@ -26,14 +28,14 @@ object Service {
     new Service[IO] {
 
       override def tasks: IO[List[(Int, Task)]] =
-        sql"select id, label, completed from task order by id desc"
-          .query[(Int, String, Boolean)]
-          .map { case (id, label, completed) => (id, Task(label, completed)) }
+        sql"select id, label, date, completed from task order by id desc"
+          .query[(Int, String, Option[Instant], Boolean)]
+          .map { case (id, label, date, completed) => (id, Task(label, date, completed)) }
           .to[List]
           .transact(xa)
 
       override def insertTask(task: Task): IO[Task] =
-        Update[Task]("insert into task(label, completed) values (?, ?)")
+        Update[Task]("insert into task(label, date, completed) values (?, ?, ?)")
           .updateMany(List(task))
           .transact(xa)
           .as(task)

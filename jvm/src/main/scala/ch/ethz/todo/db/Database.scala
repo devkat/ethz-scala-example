@@ -7,6 +7,7 @@ import cats.implicits._
 import ch.ethz.todo.domain.Task
 import doobie.h2.H2Transactor
 import doobie.implicits._
+import doobie.implicits.javatime._
 import doobie.util.transactor.Transactor
 import doobie.util.update.Update
 
@@ -40,19 +41,20 @@ object Database {
   val create =
     sql"""
     CREATE TABLE task (
-      id   SERIAL,
+      id SERIAL NOT NULL,
       label VARCHAR NOT NULL UNIQUE,
-      completed  BOOLEAN
+      date TIMESTAMP WITH TIME ZONE,
+      completed BOOLEAN NOT NULL
     )
   """.update.run
 
   val initData = {
     val tasks = List(
-      Task("Apples", false),
-      Task("Milk", false),
-      Task("Butter", true)
+      Task("Apples", None, false),
+      Task("Milk", None, false),
+      Task("Butter", None, true)
     )
-    val sql = "insert into task(label, completed) values(?, ?)"
+    val sql = "insert into task(label, date, completed) values(?, ?, ?)"
     Update[Task](sql).updateMany(tasks)
   }
 

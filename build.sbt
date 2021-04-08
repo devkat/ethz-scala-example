@@ -50,7 +50,8 @@ lazy val todo = crossProject(JSPlatform, JVMPlatform).in(file("."))
     scalaJSUseMainModuleInitializer := true,
     libraryDependencies ++= Seq(
       "com.raquo" %%% "laminar"   % "0.12.2",
-      "com.raquo" %%% "airstream" % "0.12.2"
+      "com.raquo" %%% "airstream" % "0.12.2",
+      "io.github.cquiroz" %%% "scala-java-time" % "2.2.1"
     )
   )
   .enablePlugins(ScalaJSPlugin)
