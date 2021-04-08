@@ -14,32 +14,32 @@ import org.scalajs.dom.raw.Event
 
 object TodoList {
 
+  val labelBus: EventBus[String] = new EventBus
+  val labelSignal: Signal[String] = labelBus.events.startWith("")
+
+  val newTaskBus: EventBus[Event] = new EventBus
+  val newTaskStream: EventStream[TaskList] =
+    newTaskBus.events
+      .sample(labelSignal)
+      .filter(_.trim.nonEmpty)
+      .flatMap(label => Client.insertTask(Task(label, false)))
+      .flatMap(_ => Client.tasks)
+
+  val updateTaskBus: EventBus[(Int, Task)] = new EventBus
+  val updateTaskStream: EventStream[TaskList] =
+    updateTaskBus.events
+      .flatMap((Client.updateTask _).tupled)
+      .flatMap(_ => Client.tasks)
+
+  val deleteTaskBus: EventBus[Int] = new EventBus
+  val deleteTaskStream: EventStream[TaskList] =
+    deleteTaskBus.events
+      .flatMap(Client.deleteTask)
+      .flatMap(_ => Client.tasks)
+
   def apply(tasksVar: Var[TaskList]) = {
 
     val taskList = tasksVar.signal.map(_.getOrElse(Nil))
-
-    val labelBus: EventBus[String] = new EventBus
-    val labelSignal: Signal[String] = labelBus.events.startWith("")
-
-    val newTaskBus: EventBus[Event] = new EventBus
-    val newTaskStream: EventStream[TaskList] =
-      newTaskBus.events
-        .sample(labelSignal)
-        .filter(_.trim.nonEmpty)
-        .flatMap(label => Client.insertTask(Task(label, false)))
-        .flatMap(_ => Client.tasks)
-
-    val updateTaskBus: EventBus[(Int, Task)] = new EventBus
-    val updateTaskStream: EventStream[TaskList] =
-      updateTaskBus.events
-        .flatMap((Client.updateTask _).tupled)
-        .flatMap(_ => Client.tasks)
-
-    val deleteTaskBus: EventBus[Int] = new EventBus
-    val deleteTaskStream: EventStream[TaskList] =
-      deleteTaskBus.events
-        .flatMap(Client.deleteTask)
-        .flatMap(_ => Client.tasks)
 
     def tasksView(completed: Boolean) =
       ListGroup(
