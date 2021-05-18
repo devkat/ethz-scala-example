@@ -21,7 +21,7 @@ import scala.concurrent.ExecutionContext.global
 
 object Server extends IOApp {
 
-  def helloWorldService(service: Service[IO]): HttpRoutes[IO] =
+  def todoService(service: Service[IO]): HttpRoutes[IO] =
     HttpRoutes.of[IO] {
 
       case GET -> Root =>
@@ -46,7 +46,7 @@ object Server extends IOApp {
         "../js/target/scala-2.13/todo-fastopt",
         blocker
       )),
-      "/" -> helloWorldService(service)
+      "/" -> todoService(service)
     ).orNotFound
 
   override def run(args: List[String]): IO[ExitCode] =
