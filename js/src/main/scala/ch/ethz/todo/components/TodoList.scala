@@ -55,8 +55,11 @@ object TodoList {
                 )(task.label),
                 /*
                 input(
-                  cls := "form-control",
-                  tpe := "datetime-local"
+                  cls := "form-control border-0",
+                  tpe := "datetime-local",
+                  styleAttr := "width: auto",
+                  value := task.date.fold("")(_.toString),
+                  onChange.map(e => (id, task.copy(date = e.target.))) --> updateTaskBus.writer
                 ),
                 //button(cls := "btn bi-calendar"),
                 */
