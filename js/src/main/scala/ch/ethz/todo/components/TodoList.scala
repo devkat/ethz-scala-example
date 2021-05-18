@@ -98,7 +98,7 @@ object TodoList {
         cls := "row",
         div(
           cls := "col-md-6",
-          h3(className := "mt-3", "Open"),
+          h3(className := "mt-3", "ToDo"),
           tasksView(false)
         ),
         div(

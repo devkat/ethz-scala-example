@@ -2,7 +2,7 @@ package ch.ethz
 
 import scala.util.Try
 
-object StateMonadExample extends App {
+object StateMonadExample {
 
   final case class State[S, A](run: S => (S, A)) {
 

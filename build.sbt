@@ -55,3 +55,12 @@ lazy val todo = crossProject(JSPlatform, JVMPlatform).in(file("."))
     )
   )
   .enablePlugins(ScalaJSPlugin)
+
+  lazy val examples = (project in file("examples"))
+  .settings(
+    name := "examples",
+    publish := {},
+    publishLocal := {},
+    libraryDependencies += "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.0"
+  )
+
