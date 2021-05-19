@@ -2,7 +2,7 @@
 
 ## Setup
 
-1. Install [sbt](https://www.scala-sbt.org)
+1. Install [sbt](https://www.scala-sbt.org) (simple build tool)
 
 ## Build and run
 
