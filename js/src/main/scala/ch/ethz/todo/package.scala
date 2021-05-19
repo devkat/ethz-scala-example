@@ -6,6 +6,6 @@ package object todo {
 
   type ErrorMessage = String
 
-  type TaskList = Either[String, List[(Int, Task)]]
+  type TaskList = Either[ErrorMessage, List[(Int, Task)]]
 
 }
