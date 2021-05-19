@@ -27,9 +27,9 @@
     
 1. Access the example application at http://localhost:8080/
 
-## Hot-reload (development mode)
+## Development mode
 
-Start two separate terminals and use the `~` prefix for continuous compilation:
+Start two separate terminals and use the `~` prefix for continuous compilation and server restart:
 
 Terminal 1 (client):
 
