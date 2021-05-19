@@ -24,6 +24,8 @@
     ```bash
     sbt:todo> reStart
     ```
+    
+1. Access the example application at http://localhost:8080/
 
 ## Hot-reload (development mode)
 
